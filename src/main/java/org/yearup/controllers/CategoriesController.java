@@ -36,10 +36,10 @@ public class CategoriesController
         return categoryDao.getAllCategories();
     }
 
-
+    @RequestMapping("/{id}")
     public Category getById(@PathVariable int id)
     {
-        return null;
+        return categoryDao.getById(id);
     }
 
     // the url to return all products in category 1 would look like this

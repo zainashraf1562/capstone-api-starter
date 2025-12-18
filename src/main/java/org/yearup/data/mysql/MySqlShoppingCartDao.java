@@ -63,16 +63,61 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
 
     @Override
     public ShoppingCart addToCart(int userId, int productId) {
-        return null;
+        String updatingCart = """
+                UPDATE shopping_cart
+                SET quantity = quantity + 1
+                WHERE user_id = ? AND product_id = ?;
+                """;
+
+        String addingToCart = """
+                INSERT INTO shopping_cart (user_id, product_id, quantity)
+                        VALUES (?, ?, 1)
+                """;
+
+        try(Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(updatingCart)){
+
+            preparedStatement.setInt(1,userId);
+            preparedStatement.setInt(2,productId);
+
+            int rows = preparedStatement.executeUpdate();
+
+            if (rows == 0){
+                try(PreparedStatement insertStatement = connection.prepareStatement(addingToCart)){
+                    insertStatement.setInt(1, userId);
+                    insertStatement.setInt(2, productId);
+                    insertStatement.executeUpdate();
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return getByUserId(userId);
     }
 
     @Override
-    public ShoppingCart updateCart(int userId, int productId, int quantity) {
-        return null;
+    public void updateCart(int userId, int productId, int quantity) {
+        String sql = "UPDATE shopping_cart SET quantity = ? WHERE product_id = ? AND user_id = ?";
+        try(Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1, quantity);
+            preparedStatement.setInt(2, productId);
+            preparedStatement.setInt(3,userId);
+            int updatedRows = preparedStatement.executeUpdate();
+
+            if(updatedRows == 0) {
+                throw new SQLException("Failed to Update!");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void deleteCart(int userId) {
 
     }
+
 }

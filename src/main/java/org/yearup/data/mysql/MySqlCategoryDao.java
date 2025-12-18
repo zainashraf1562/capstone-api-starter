@@ -5,10 +5,7 @@ import org.yearup.data.CategoryDao;
 import org.yearup.models.Category;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,14 +71,53 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
     @Override
     public Category create(Category category)
     {
-        // create a new category
-        return null;
+        String create = "INSERT INTO categories (name, description) VALUES (?, ?)";
+
+        try (Connection connection = getConnection();
+             PreparedStatement insertStatement = connection.prepareStatement(create, Statement.RETURN_GENERATED_KEYS)){
+
+            insertStatement.setString(1, category.getName());
+            insertStatement.setString(2, category.getDescription());
+            int affectedRows = insertStatement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SQLException("Failed to create Category!");
+            }
+
+            try (ResultSet resultSet = insertStatement.getGeneratedKeys()){
+                if (resultSet.next()){
+                    int resultId = resultSet.getInt(1);
+                    category.setCategoryId(resultId);
+                }else {
+                    throw new SQLException("Failed, Error obtaining Id!");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return category;
     }
 
     @Override
     public void update(int categoryId, Category category)
     {
-        // update category
+        String update = """
+                UPDATE categories
+                SET name = ?, description = ?
+                WHERE category_id = ?
+                """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement updateStatement = connection.prepareStatement(update)){
+
+            updateStatement.setString(1, category.getName());
+            updateStatement.setString(2, category.getDescription());
+            updateStatement.setInt(3, categoryId);
+            updateStatement.executeUpdate();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

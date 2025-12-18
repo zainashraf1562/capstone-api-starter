@@ -65,7 +65,11 @@ public class CategoriesController
     @ResponseStatus(HttpStatus.CREATED)
     public Category addCategory(@RequestBody Category category)
     {
-        return null;
+        try {
+            return categoryDao.create(category);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Error!");
+        }
     }
 
     // add annotation to call this method for a PUT (update) action - the url path must include the categoryId
@@ -74,6 +78,7 @@ public class CategoriesController
     @PreAuthorize("hasRole('role_admin')")
     public void updateCategory(@PathVariable int id, @RequestBody Category category)
     {
+
 
     }
 

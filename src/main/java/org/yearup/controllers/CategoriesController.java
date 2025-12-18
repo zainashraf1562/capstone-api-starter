@@ -11,6 +11,7 @@ import org.yearup.data.ProductDao;
 import org.yearup.models.Category;
 import org.yearup.models.Product;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 
 // add the annotations to make this a REST controller
@@ -29,22 +30,41 @@ public class CategoriesController
 
     // create an Autowired controller to inject the categoryDao and ProductDao
     @Autowired
-    public CategoriesController(CategoryDao categoryDao){
+    public CategoriesController(CategoryDao categoryDao, ProductDao productDao){
         this.categoryDao = categoryDao;
+        this.productDao = productDao;
+
     }
 
     // add the appropriate annotation for a get action
     @GetMapping()
+    @PermitAll
     public List<Category> getAll()
     {
-        return categoryDao.getAllCategories();
+        try {
+            return categoryDao.getAllCategories();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
     }
 
     @GetMapping("/{id}")
+    @PermitAll
     public Category getById(@PathVariable int id)
     {
-        if (categoryDao.getById(id) == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Error!");
-        return categoryDao.getById(id);
+        Category category = null;
+        try
+        {
+            category = categoryDao.getById(id);
+
+        }
+        catch(Exception ex)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
+        if (category == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return category;
     }
 
     // the url to return all products in category 1 would look like this

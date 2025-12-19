@@ -14,14 +14,13 @@ import org.yearup.models.User;
 
 import java.security.Principal;
 
-// convert this class to a REST controller
-// only logged in users should have access to these actions
+
 @RestController
 @CrossOrigin
-@RequestMapping("/cart")
+@RequestMapping("cart")
 public class ShoppingCartController
 {
-    // a shopping cart requires
+
     private ShoppingCartDao shoppingCartDao;
     private UserDao userDao;
     private ProductDao productDao;
@@ -52,8 +51,7 @@ public class ShoppingCartController
         }
     }
 
-    // add a POST method to add a product to the cart - the url should be
-    // https://localhost:8080/cart/products/15 (15 is the productId to be added
+
     @PostMapping("products/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -70,9 +68,7 @@ public class ShoppingCartController
     }
 
 
-    // add a PUT method to update an existing product in the cart - the url should be
-    // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
-    // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
+
     @PutMapping("products/{Id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ShoppingCart updateCart(@PathVariable int Id, @RequestBody ShoppingCartItem shoppingCartItem, Principal principal)
@@ -92,8 +88,7 @@ public class ShoppingCartController
     }
 
 
-    // add a DELETE method to clear all products from the current users cart
-    // https://localhost:8080/cart
+
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ROLE_USER')")
